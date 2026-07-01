@@ -25,6 +25,8 @@ dev = [
     "isort>=5.13",
     "pyright>=1.1",
     "black>=24.0",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
 ]
 # Context-inference module dependencies (Ollama must be installed separately via download_model.sh)
 context-inference = [
@@ -64,3 +66,32 @@ reportMissingTypeStubs = false
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=xml:coverage.xml",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/__init__.py", "*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 70
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

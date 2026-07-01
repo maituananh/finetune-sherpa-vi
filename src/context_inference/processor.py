@@ -4,12 +4,18 @@ Core file processor for the Context Inference module.
 Processing pipeline per file:
   1. Read all lines from the .trans.txt file
   2. Filter / skip lines that are too short (log warning for devs)
-  3. Split remaining lines into chunks (to respect LLM context window)
+  3. Split into smart chunks — never break at a comma-ending line (bug fix #1)
   4. Send each chunk to Ollama → get back merged sentences
   5. Write output to <output_dir>/<stem>-context.trans.txt
 
 Parallelism: ThreadPoolExecutor with max_workers=CONTEXT_MAX_WORKERS (default 2)
 to keep hardware load manageable.
+
+Bug fixes applied:
+  #1 Lines ending with ',' are never placed at the END of a chunk — they are
+     carried over to the next chunk so the model sees the continuation.
+  #2 chunk_size is treated as a soft ceiling; we always finish the current
+     logical group before cutting, preventing sentences from being split in half.
 """
 
 import logging
@@ -76,8 +82,38 @@ def _filter_lines(
 
 
 def _chunk_lines(lines: list[str], chunk_size: int) -> list[list[str]]:
-    """Split a flat list of lines into fixed-size chunks."""
-    return [lines[i: i + chunk_size] for i in range(0, len(lines), chunk_size)]
+    """Split lines into chunks, never cutting at a comma-ending line (bug #1 & #2).
+
+    A line that ends with ',' is part of an unfinished sentence — it must stay
+    together with its continuation in the next chunk.  We therefore delay the
+    chunk boundary until we hit a line that does NOT end with ','.
+
+    Args:
+        lines: Pre-filtered list of transcript lines.
+        chunk_size: Soft maximum number of lines per chunk.
+
+    Returns:
+        List of chunks, each a list of lines.
+    """
+    if not lines:
+        return []
+
+    chunks: list[list[str]] = []
+    current: list[str] = []
+
+    for line in lines:
+        current.append(line)
+        # Only close the chunk when:
+        #   a) we have reached chunk_size, AND
+        #   b) the last line does NOT end with ',' (unfinished sentence guard)
+        if len(current) >= chunk_size and not line.rstrip().endswith(","):
+            chunks.append(current)
+            current = []
+
+    if current:  # flush the last (possibly smaller) chunk
+        chunks.append(current)
+
+    return chunks
 
 
 def _clean_model_output(raw: str) -> str:
