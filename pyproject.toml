@@ -9,7 +9,12 @@ description = "Fine-tuning Sherpa Vietnamese model"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-dependencies = []
+dependencies = [
+    "python-dotenv>=1.0",
+    "youtube-transcript-api>=0.6",
+    "youtube_dl>=2021.12",
+    "yt-dlp>=2024.1",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -19,7 +24,6 @@ dev = [
     "isort>=5.13",
     "pyright>=1.1",
     "black>=24.0",
-    "python-dotenv>=1.0",
 ]
 
 # ---------------------------------------------------------------------------
