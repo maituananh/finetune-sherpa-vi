@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 license = { text = "MIT" }
 dependencies = [
     "python-dotenv>=1.0",
+    "requests>=2.31",
     "youtube-transcript-api>=0.6",
     "youtube_dl>=2021.12",
     "yt-dlp>=2024.1",
@@ -24,6 +25,11 @@ dev = [
     "isort>=5.13",
     "pyright>=1.1",
     "black>=24.0",
+]
+# Context-inference module dependencies (Ollama must be installed separately via download_model.sh)
+context-inference = [
+    "requests>=2.31",
+    "python-dotenv>=1.0",
 ]
 
 # ---------------------------------------------------------------------------
