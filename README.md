@@ -70,6 +70,45 @@ cp .env.example .env
 
 ---
 
+## Step-by-Step Running Guide
+
+To run the entire pipeline from scratch, follow these steps in order:
+
+### 1. Environment & Config Setup
+Ensure you have activated your virtual environment and installed the dependencies:
+```bash
+source .venv/bin/activate
+pip install -e ".[dev,context-inference]"
+cp .env.example .env
+```
+Open `.env` and configure:
+- `YOUTUBE_PLAYLISTS`: The playlist URLs containing videos to download.
+- `CONTEXT_INPUT_DIR` / `TRANSCRIPT_OUTPUT_DIR`: Keep them matching (e.g., `./transcripts`) so the LLM knows where to find the raw text.
+
+### 2. Extract Youtube Transcripts
+Extract the raw timestamp segment files from YouTube:
+```bash
+python main.py
+```
+This fetches raw segments and saves them to the `./transcripts` directory.
+
+### 3. Setup Ollama Server & Pull Model
+Initialize the local LLM environment (installs Ollama, starts background server, pulls Qwen2.5:3B, and runs sanity checks):
+```bash
+bash scripts/download_model.sh
+```
+Ensure you see a success output: `✅ Mọi thứ đã sẵn sàng!`
+
+### 4. Run Context Inference
+Process the raw segment files to reconstruct coherent sentences:
+```bash
+python run_context_inference.py
+```
+This will read from `./transcripts`, run context inference, filter short lines, and write files to `./context_output/` with name format: `*-context.trans.txt`.
+
+---
+
+
 ## 1. YouTube Transcript Pipeline
 
 ### Configuration (.env)
