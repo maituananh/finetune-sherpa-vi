@@ -1,0 +1,20 @@
+[flake8]
+max-line-length = 88
+extend-ignore =
+    # Whitespace before ':' — conflicts with Black
+    E203,
+    # Line break before binary operator — conflicts with Black
+    W503,
+    # Missing docstring in public module (relax for scripts)
+    D100,
+    D104,
+extend-exclude =
+    .venv,
+    venv,
+    dist,
+    build,
+    __pycache__,
+    *.egg-info,
+per-file-ignores =
+    # Allow missing docstrings in tests
+    tests/*:D,

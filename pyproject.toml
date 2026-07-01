@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finetune-sherpa-vi"
+version = "0.1.0"
+description = "Fine-tuning Sherpa Vietnamese model"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=7.0",
+    "flake8-bugbear",
+    "flake8-docstrings",
+    "isort>=5.13",
+    "pyright>=1.1",
+    "black>=24.0",
+    "python-dotenv>=1.0",
+]
+
+# ---------------------------------------------------------------------------
+# Tool configurations
+# ---------------------------------------------------------------------------
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["finetune_sherpa_vi"]
+skip_glob = [".venv/*", "venv/*", "dist/*", "build/*"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+exclude = [
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+    "**/__pycache__",
+]
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
