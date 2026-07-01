@@ -22,7 +22,7 @@ from typing import List
 from dotenv import load_dotenv
 
 # Load .env file from project root (two levels up from this file)
-_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(_PROJECT_ROOT / ".env")
 
 

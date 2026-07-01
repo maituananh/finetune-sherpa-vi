@@ -52,7 +52,8 @@ class TranscriptFetcher:
         log.info("[Transcript] Fetching for video: %s (langs: %s)", video_id, self._languages)
 
         try:
-            raw = self._api.get_transcript(video_id, languages=self._languages)
+            transcript = self._api.fetch(video_id, languages=self._languages)
+            raw = transcript.to_raw_data()
             segments = [seg["text"] for seg in raw if seg.get("text", "").strip()]
             log.info("[Transcript] OK — %d segments retrieved", len(segments))
             return segments
@@ -81,7 +82,7 @@ class TranscriptFetcher:
         """Import YouTubeTranscriptApi or raise a helpful error."""
         try:
             from youtube_transcript_api import YouTubeTranscriptApi  # noqa: PLC0415
-            return YouTubeTranscriptApi
+            return YouTubeTranscriptApi()
         except ImportError as exc:
             raise ImportError(
                 "youtube-transcript-api is not installed.\n"
