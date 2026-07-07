@@ -27,8 +27,16 @@ finetune-sherpa-vi/
 │       ├── __init__.py
 │       ├── config.py                     # Load .env → typed Config (LLM context)
 │       ├── prompt.py                     # Expert IT Prompt (Vi+En code-switching)
-│       ├── ollama_client.py              # Ollama API client & VRAM/GPU check
-│       └── processor.py                  # Batch parallel file processor
+│       ├── ollama/
+│       │   ├── client.py                 # Ollama chat client
+│       │   └── health.py                 # Ollama/server/model/GPU checks
+│       ├── processing/
+│       │   ├── batch.py                  # Batch orchestration
+│       │   ├── file_processor.py         # Single-file processing flow
+│       │   ├── naming.py                 # Output filename rules
+│       │   └── text.py                   # Filter/chunk/cleanup helpers
+│       ├── ollama_client.py              # Compatibility wrapper
+│       └── processor.py                  # Compatibility wrapper
 ├── transcripts/                          # (auto-created) output .trans.txt files
 ├── context_output/                       # (auto-created) output of processed context transcripts
 ├── video-id-locked.txt                   # (auto-created) processed video IDs
@@ -83,6 +91,7 @@ cp .env.example .env
 ```
 Open `.env` and configure:
 - `YOUTUBE_PLAYLISTS`: The playlist URLs containing videos to download.
+- `YOUTUBE_PLAYLIST_VIDEO_LIMIT`: Number of videos to take from each playlist. Leave empty or set `0` to take all.
 - `CONTEXT_INPUT_DIR` / `TRANSCRIPT_OUTPUT_DIR`: Keep them matching (e.g., `./transcripts`) so the LLM knows where to find the raw text.
 
 ### 2. Extract Youtube Transcripts
@@ -116,6 +125,7 @@ This will read from `./transcripts`, run context inference, filter short lines, 
 | Variable | Description | Example |
 |---|---|---|
 | `YOUTUBE_PLAYLISTS` | JSON array of playlist URLs | `["https://www.youtube.com/playlist?list=PL..."]` |
+| `YOUTUBE_PLAYLIST_VIDEO_LIMIT` | Max videos to take from each playlist; `0` or empty = all | `10` |
 | `TRANSCRIPT_LANGS` | Language priority (comma-separated) | `vi,en` |
 | `TRANSCRIPT_OUTPUT_DIR` | Where to save .trans.txt files | `./transcripts` |
 | `LOCK_FILE` | Processed video IDs lock file | `./video-id-locked.txt` |
@@ -134,6 +144,12 @@ python main.py
 This module reads raw segment transcripts, skips very short lines, and uses **Qwen2.5:3B via Ollama** to rebuild fragmented lines into complete, grammatically correct sentences matching the speech length of ~15s (about 30-35 words per line). 
 
 It is tailored for Vietnamese IT content, preserving technical English terms (code-switching) and avoiding splitting context mid-sentence (e.g. avoiding splits after comma-ending lines).
+
+The code is organized by responsibility so it is easier to replace pieces independently:
+- `context_inference/ollama/`: network and runtime checks for Ollama.
+- `context_inference/processing/`: pure text transforms, file processing, and batch orchestration.
+- `context_inference/prompt.py`: prompt rules only.
+- `context_inference/config.py`: env-backed settings only.
 
 ### Setup Ollama & Pull Model
 

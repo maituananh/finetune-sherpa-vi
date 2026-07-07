@@ -16,8 +16,7 @@ from pathlib import Path
 # Ensure src/ is on the path when running from project root
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from context_inference.config import ContextInferenceConfig  # noqa: E402
-from context_inference.processor import run_batch  # noqa: E402
+from context_inference import ContextInferenceConfig, run_batch  # noqa: E402
 
 
 def setup_logging(level: str = "INFO") -> None:

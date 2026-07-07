@@ -14,11 +14,20 @@ Only the ``text`` field is used; timing data is discarded.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import List, Optional
 
 from finetune_sherpa_vi.utils.logger import get_logger
 
 log = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class TranscriptFetchResult:
+    """Outcome of a transcript fetch attempt."""
+
+    segments: Optional[List[str]]
+    reason: Optional[str] = None
 
 
 class TranscriptFetcher:
@@ -36,17 +45,21 @@ class TranscriptFetcher:
     # Public API                                                           #
     # ------------------------------------------------------------------ #
 
-    def fetch(self, video_id: str) -> Optional[List[str]]:
+    def fetch(self, video_id: str) -> TranscriptFetchResult:
         """Fetch transcript segments for *video_id*.
 
         Returns:
-            List of text strings (one per segment), or ``None`` if no
-            transcript is available / the video is inaccessible.
+            Fetch result containing transcript segments and failure reason.
         """
         from youtube_transcript_api import (  # noqa: PLC0415
+            AgeRestricted,
+            CouldNotRetrieveTranscript,
+            InvalidVideoId,
             NoTranscriptFound,
+            RequestBlocked,
             TranscriptsDisabled,
             VideoUnavailable,
+            VideoUnplayable,
         )
 
         log.info("[Transcript] Fetching for video: %s (langs: %s)", video_id, self._languages)
@@ -55,23 +68,34 @@ class TranscriptFetcher:
             transcript = self._api.fetch(video_id, languages=self._languages)
             raw = transcript.to_raw_data()
             segments = [seg["text"] for seg in raw if seg.get("text", "").strip()]
+            if not segments:
+                reason = "Transcript API returned no non-empty segments."
+                log.warning("[Transcript] SKIP %s — %s", video_id, reason)
+                return TranscriptFetchResult(segments=None, reason=reason)
             log.info("[Transcript] OK — %d segments retrieved", len(segments))
-            return segments
+            return TranscriptFetchResult(segments=segments, reason=None)
 
         except TranscriptsDisabled:
-            log.warning("[Transcript] SKIP %s — transcripts are disabled by uploader", video_id)
+            reason = "Transcripts are disabled by the uploader."
         except NoTranscriptFound:
-            log.warning(
-                "[Transcript] SKIP %s — no transcript found for languages %s",
-                video_id,
-                self._languages,
-            )
+            reason = f"No transcript found for languages {self._languages}."
         except VideoUnavailable:
-            log.warning("[Transcript] SKIP %s — video unavailable (private/deleted)", video_id)
+            reason = "Video unavailable (private, deleted, or removed)."
+        except VideoUnplayable:
+            reason = "Video is unplayable."
+        except AgeRestricted:
+            reason = "Video is age-restricted."
+        except InvalidVideoId:
+            reason = "Video ID is invalid."
+        except RequestBlocked as exc:
+            reason = f"Transcript request blocked by YouTube: {exc}"
+        except CouldNotRetrieveTranscript as exc:
+            reason = f"Could not retrieve transcript: {exc}"
         except Exception as exc:  # noqa: BLE001
-            log.warning("[Transcript] SKIP %s — unexpected error: %s", video_id, exc)
+            reason = f"Unexpected error: {exc}"
 
-        return None
+        log.warning("[Transcript] SKIP %s — %s", video_id, reason)
+        return TranscriptFetchResult(segments=None, reason=reason)
 
     # ------------------------------------------------------------------ #
     # Private helpers                                                      #

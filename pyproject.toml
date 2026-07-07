@@ -76,6 +76,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+markers = [
+    "integration: real integration tests (no mock, may require local services)",
+]
 addopts = [
     "-v",
     "--tb=short",

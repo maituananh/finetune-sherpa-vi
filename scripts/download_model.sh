@@ -14,7 +14,7 @@
 set -euo pipefail
 
 # ── Config ────────────────────────────────────────────────────────────────────
-MODEL="${1:-qwen2.5:3b}"
+MODEL="${1:-qwen3:8b}"
 OLLAMA_VERSION_MIN="0.3.0"
 
 # Đọc OLLAMA_HOST từ .env nếu có
