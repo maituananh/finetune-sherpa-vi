@@ -29,7 +29,7 @@ class Pipeline:
 
     def __init__(self, config: Config) -> None:
         self._config = config
-        self._extractor = PlaylistExtractor()
+        self._extractor = PlaylistExtractor(video_limit=config.playlist_video_limit)
         self._fetcher = TranscriptFetcher(languages=config.transcript_langs)
         self._lock = LockStore(config.lock_file)
         self._writer = TranscriptWriter(config.output_dir)
@@ -51,6 +51,7 @@ class Pipeline:
         log.info("[Pipeline] Output dir : %s", cfg.output_dir.resolve())
         log.info("[Pipeline] Lock file  : %s", cfg.lock_file.resolve())
         log.info("[Pipeline] Languages  : %s", cfg.transcript_langs)
+        log.info("[Pipeline] Playlist limit : %s", cfg.playlist_video_limit or "all")
         log.info("=" * 60)
 
         total_processed = 0
@@ -108,10 +109,17 @@ class Pipeline:
             log.info("[Video] Processing: '%s' (%s)", title, vid_id)
 
             # ── Step 2: Fetch transcript ───────────────────────────────
-            segments = self._fetcher.fetch(vid_id)
+            transcript_result = self._fetcher.fetch(vid_id)
+            segments = transcript_result.segments
 
             if segments is None:
-                log.warning("[Video] FAIL '%s' (%s) — no transcript obtained", title, vid_id)
+                failure_reason = transcript_result.reason or "No transcript obtained."
+                log.warning(
+                    "[Video] FAIL '%s' (%s) — %s",
+                    title,
+                    vid_id,
+                    failure_reason,
+                )
                 failed += 1
                 # Still lock it so we don't waste time retrying on next run.
                 # Remove this line if you prefer to retry failed videos.

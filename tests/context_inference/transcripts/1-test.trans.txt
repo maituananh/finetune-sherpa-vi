@@ -1,0 +1,34 @@
+Bạn hay nhầm lẫn giữa Interface
+và Abstract Class
+trong Java? Hãy cùng mình làm sáng
+tỏ mọi thứ trong video này chúng ta
+sẽ đi từ định nghĩa cơ bản cho đến
+cách áp dụng thực tế trong dự án.
+Đầu tiên Interface là một contract
+nó chỉ định nghĩa method signature
+mà không có implementation cụ thể.
+Còn Abstract Class thì khác
+nó có thể chứa cả concrete method
+lẫn abstract method trong cùng một class.
+Khi nào nên dùng Interface?
+Dùng khi bạn muốn define behavior
+cho nhiều class không liên quan đến nhau
+ví dụ như Flyable có thể implement bởi Bird
+và cũng có thể implement bởi Airplane.
+Abstract Class phù hợp hơn
+khi các class có chung một base logic
+ví dụ Animal với các subclass như Dog Cat Fish
+tất cả đều có method eat và breathe
+nhưng cách thực hiện thì khác nhau.
+Từ Java 8 trở đi Interface còn hỗ trợ
+default method và static method
+điều này làm mờ ranh giới giữa hai khái niệm.
+Một lưu ý quan trọng là một class
+chỉ có thể extend một Abstract Class
+nhưng có thể implement nhiều Interface
+đây chính là lý do Interface thường được
+ưu tiên hơn trong thiết kế hệ thống lớn.
+Design pattern Strategy và Template Method
+là hai ví dụ điển hình cho thấy
+sự khác biệt trong cách sử dụng Interface
+và Abstract Class trong thực tế.

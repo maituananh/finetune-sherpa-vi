@@ -1,3 +1,8 @@
+== finetune-sherpa-vi
 1. File ko đọc được thì ko cần lock
 2. Có cách nào cắt theo ngữ cảnh trong transcript thay vì theo thời gian
-3. 
+
+
+== context_inference
+1. Nếu dính dấu "," nhưng chưa đủ 30 chữ thì hãy cố gắng thêm vào (or ngước lại)
+2. Kiểm tra lại phần nếu file input quá dài thì sẽ xử lý thế nào (nó đang bị ngắt đôi)

@@ -65,3 +65,8 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# ── Output ──────────────────────────────────────────────────────────────
+context_output/
+transcripts/
+video-id-locked.txt

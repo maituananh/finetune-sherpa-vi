@@ -1,0 +1,12 @@
+# context_output/
+
+Thư mục này chứa các file đã được xử lý ngữ cảnh bởi pipeline `context-inference`.
+
+## Quy tắc đặt tên
+
+| Input | Output |
+|---|---|
+| `1-abc-xyz.trans.txt` | `1-abc-xyz-context.trans.txt` |
+| `video-123.trans.txt` | `video-123-context.trans.txt` |
+
+> Thư mục này được tự động tạo khi chạy `python run_context_inference.py`
